@@ -1,6 +1,24 @@
 import pipes
 import subprocess
 
+
+# subprocess overrides
+def call(*popenargs, **kwargs):
+	connection = connect(kwargs.pop('netloc', None))
+	return connection.call(*popenargs, **kwargs)
+
+def check_call(*popenargs, **kwargs):
+	connection = connect(kwargs.pop('netloc', None))
+	return connection.check_call(*popenargs, **kwargs)
+
+def check_output(*popenargs, **kwargs):
+	connection = connect(kwargs.pop('netloc', None))
+	return connection.check_output(*popenargs, **kwargs)
+
+def Popen(*popenargs, **kwargs):
+	connection = connect(kwargs.pop('netloc', None))
+	return connection.Popen(*popenargs, **kwargs)
+
 # open a connection that can be used to execute processes
 def connect(netloc):
 	# use local connection if netloc is empty
@@ -66,20 +84,3 @@ class RemoteShellConnection(object):
 
 	def Popen(self, *args, **kwargs):
 		return self._call(subprocess.Popen, *args, **kwargs)
-
-# subprocess overrides
-def Popen(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.Popen(*popenargs, **kwargs)
-
-def call(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.call(*popenargs, **kwargs)
-
-def check_call(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.check_call(*popenargs, **kwargs)
-
-def check_output(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.check_output(*popenargs, **kwargs)
