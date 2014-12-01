@@ -58,6 +58,16 @@ class RemoteShellConnection(object):
 		# store remote shell command list
 		self.remote_shell = remote_shell
 
+	def __enter__(self):
+		return self
+
+	def __exit__(self, *exc):
+		self.close()
+		return False
+
+	def close(self):
+		pass
+
 	# call subprocess function after adjusting cmd to run in remote shell
 	def _call(self, f, cmd, *args, **kwargs):
 		# quote command for remote shell if provided as list
