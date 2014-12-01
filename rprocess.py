@@ -8,19 +8,21 @@ def connect(netloc):
 		return local_connection
 
 	# split netloc
-	username, _, hostname = netloc.rpartition('@')
+	user, _, host = netloc.rpartition('@')
+	username, _, password = user.partition(':')
+	hostname, _, port = host.partition(':')
 
-	# don't use remote shell for localhost unless user is specified
-	if not username and hostname in {'localhost', '127.0.0.1'}:
+	# don't use remote shell for localhost unless user or port is specified
+	if not username and not port and hostname in {'localhost', '127.0.0.1'}:
 		return local_connection
 
-	return RemoteShellConnection(hostname, username)
+	return RemoteShellConnection(hostname, port, username, password)
 
 # Use subprocess module directly for local commands
 local_connection = subprocess
 
 class RemoteShellConnection(object):
-	def __init__(self, hostname, username=None, remote_shell=None):
+	def __init__(self, hostname, port=None, username=None, password=None, remote_shell=None):
 		# use ssh as default remote shell
 		if not remote_shell:
 			remote_shell = ['ssh']
