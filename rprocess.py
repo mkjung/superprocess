@@ -23,7 +23,7 @@ def Popen(*popenargs, **kwargs):
 def connect(netloc):
 	# use local connection if netloc is empty
 	if not netloc:
-		return local_connection
+		return LocalConnection()
 
 	# split netloc
 	user, _, host = netloc.rpartition('@')
@@ -32,12 +32,32 @@ def connect(netloc):
 
 	# don't use remote shell for localhost unless user or port is specified
 	if not username and not port and hostname in {'localhost', '127.0.0.1'}:
-		return local_connection
+		return LocalConnection()
 
 	return RemoteShellConnection(hostname, port, username, password)
 
-# Use subprocess module directly for local commands
-local_connection = subprocess
+class LocalConnection(object):
+	def __enter__(self):
+		return self
+
+	def __exit__(self, *exc):
+		self.close()
+		return False
+
+	def close(self):
+		pass
+
+	def call(self, *args, **kwargs):
+		return subprocess.call(*args, **kwargs)
+
+	def check_call(self, *args, **kwargs):
+		return subprocess.check_call(*args, **kwargs)
+
+	def check_output(self, *args, **kwargs):
+		return subprocess.check_output(*args, **kwargs)
+
+	def Popen(self, *args, **kwargs):
+		return subprocess.Popen(*args, **kwargs)
 
 class RemoteShellConnection(object):
 	def __init__(self, hostname, port=None, username=None, password=None, remote_shell=None):
