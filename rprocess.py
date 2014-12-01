@@ -4,20 +4,20 @@ import subprocess
 
 # subprocess overrides
 def call(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.call(*popenargs, **kwargs)
+	with connect(kwargs.pop('netloc', None)) as connection:
+		return connection.call(*popenargs, **kwargs)
 
 def check_call(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.check_call(*popenargs, **kwargs)
+	with connect(kwargs.pop('netloc', None)) as connection:
+		return connection.check_call(*popenargs, **kwargs)
 
 def check_output(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.check_output(*popenargs, **kwargs)
+	with connect(kwargs.pop('netloc', None)) as connection:
+		return connection.check_output(*popenargs, **kwargs)
 
 def Popen(*popenargs, **kwargs):
-	connection = connect(kwargs.pop('netloc', None))
-	return connection.Popen(*popenargs, **kwargs)
+	with connect(kwargs.pop('netloc', None)) as connection:
+		return connection.Popen(*popenargs, **kwargs)
 
 # open a connection that can be used to execute processes
 def connect(netloc):
