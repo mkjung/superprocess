@@ -1,0 +1,31 @@
+from setuptools import setup
+from codecs import open
+from os import path
+
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
+
+setup(
+    name='rprocess',
+    version='1.0.0.dev',
+    description='subprocess-like API for starting local and remote processes',
+    long_description=long_description,
+
+    url='https://bitbucket.org/sjdrake/rprocess',
+    author='Stephen Drake',
+    author_email='steve@synergyconsultingnz.com',
+
+    license='Apache 2.0',
+
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+    ],
+    keywords='subprocess ssh',
+
+    py_modules=['rprocess'],
+)
