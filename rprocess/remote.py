@@ -1,5 +1,4 @@
 import pipes
-import subprocess
 
 from rprocess.local import LocalConnection
 
@@ -36,7 +35,7 @@ def connect(netloc):
 
 	return RemoteShellConnection(hostname, port, username, password)
 
-class RemoteShellConnection(object):
+class RemoteShellConnection(LocalConnection):
 	def __init__(self, hostname, port=None, username=None, password=None, remote_shell=None):
 		# use ssh as default remote shell
 		if not remote_shell:
@@ -55,17 +54,7 @@ class RemoteShellConnection(object):
 		# store remote shell command list
 		self.remote_shell = remote_shell
 
-	def __enter__(self):
-		return self
-
-	def __exit__(self, *exc):
-		self.close()
-		return False
-
-	def close(self):
-		pass
-
-	# call subprocess function after adjusting cmd to run in remote shell
+	# call f after adjusting cmd to run in remote shell
 	def _call(self, f, cmd, *args, **kwargs):
 		# quote command for remote shell if provided as list
 		if isinstance(cmd, basestring):
@@ -81,13 +70,17 @@ class RemoteShellConnection(object):
 		return f(cmd, *args, **kwargs)
 
 	def call(self, *args, **kwargs):
-		return self._call(subprocess.call, *args, **kwargs)
+		return self._call(
+			super(RemoteShellConnection, self).call, *args, **kwargs)
 
 	def check_call(self, *args, **kwargs):
-		return self._call(subprocess.check_call, *args, **kwargs)
+		return self._call(
+			super(RemoteShellConnection, self).check_call, *args, **kwargs)
 
 	def check_output(self, *args, **kwargs):
-		return self._call(subprocess.check_output, *args, **kwargs)
+		return self._call(
+			super(RemoteShellConnection, self).check_output, *args, **kwargs)
 
 	def Popen(self, *args, **kwargs):
-		return self._call(subprocess.Popen, *args, **kwargs)
+		return self._call(
+			super(RemoteShellConnection, self).Popen, *args, **kwargs)
