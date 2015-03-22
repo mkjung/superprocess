@@ -1,23 +1,23 @@
 import pipes
 import subprocess
 
+from rprocess.local import LocalConnection
 
-# subprocess overrides
-def call(*popenargs, **kwargs):
+def call(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.call(*popenargs, **kwargs)
+		return connection.call(*args, **kwargs)
 
-def check_call(*popenargs, **kwargs):
+def check_call(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.check_call(*popenargs, **kwargs)
+		return connection.check_call(*args, **kwargs)
 
-def check_output(*popenargs, **kwargs):
+def check_output(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.check_output(*popenargs, **kwargs)
+		return connection.check_output(*args, **kwargs)
 
-def Popen(*popenargs, **kwargs):
+def Popen(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.Popen(*popenargs, **kwargs)
+		return connection.Popen(*args, **kwargs)
 
 # open a connection that can be used to execute processes
 def connect(netloc):
@@ -35,29 +35,6 @@ def connect(netloc):
 		return LocalConnection()
 
 	return RemoteShellConnection(hostname, port, username, password)
-
-class LocalConnection(object):
-	def __enter__(self):
-		return self
-
-	def __exit__(self, *exc):
-		self.close()
-		return False
-
-	def close(self):
-		pass
-
-	def call(self, *args, **kwargs):
-		return subprocess.call(*args, **kwargs)
-
-	def check_call(self, *args, **kwargs):
-		return subprocess.check_call(*args, **kwargs)
-
-	def check_output(self, *args, **kwargs):
-		return subprocess.check_output(*args, **kwargs)
-
-	def Popen(self, *args, **kwargs):
-		return subprocess.Popen(*args, **kwargs)
 
 class RemoteShellConnection(object):
 	def __init__(self, hostname, port=None, username=None, password=None, remote_shell=None):
