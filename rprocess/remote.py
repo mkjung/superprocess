@@ -67,20 +67,5 @@ class RemoteShellConnection(LocalConnection):
 		kwargs['shell'] = False
 
 		# call function with updated args
-		return f(cmd, *args, **kwargs)
-
-	def call(self, *args, **kwargs):
-		return self.apply(
-			super(RemoteShellConnection, self).call, *args, **kwargs)
-
-	def check_call(self, *args, **kwargs):
-		return self.apply(
-			super(RemoteShellConnection, self).check_call, *args, **kwargs)
-
-	def check_output(self, *args, **kwargs):
-		return self.apply(
-			super(RemoteShellConnection, self).check_output, *args, **kwargs)
-
-	def Popen(self, *args, **kwargs):
-		return self.apply(
-			super(RemoteShellConnection, self).Popen, *args, **kwargs)
+		return super(RemoteShellConnection, self).apply(
+			f, cmd, *args, **kwargs)
