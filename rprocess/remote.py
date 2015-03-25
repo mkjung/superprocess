@@ -54,8 +54,8 @@ class RemoteShellConnection(LocalConnection):
 		# store remote shell command list
 		self.remote_shell = remote_shell
 
-	# call f after adjusting cmd to run in remote shell
-	def _call(self, f, cmd, *args, **kwargs):
+	# apply function f with cmd adjusted to run in remote shell
+	def apply(self, f, cmd, *args, **kwargs):
 		# quote command for remote shell if provided as list
 		if isinstance(cmd, basestring):
 			cmd = [cmd]
@@ -70,17 +70,17 @@ class RemoteShellConnection(LocalConnection):
 		return f(cmd, *args, **kwargs)
 
 	def call(self, *args, **kwargs):
-		return self._call(
+		return self.apply(
 			super(RemoteShellConnection, self).call, *args, **kwargs)
 
 	def check_call(self, *args, **kwargs):
-		return self._call(
+		return self.apply(
 			super(RemoteShellConnection, self).check_call, *args, **kwargs)
 
 	def check_output(self, *args, **kwargs):
-		return self._call(
+		return self.apply(
 			super(RemoteShellConnection, self).check_output, *args, **kwargs)
 
 	def Popen(self, *args, **kwargs):
-		return self._call(
+		return self.apply(
 			super(RemoteShellConnection, self).Popen, *args, **kwargs)
