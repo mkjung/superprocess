@@ -1,7 +1,7 @@
 import subprocess
 import types
 
-class PopenBase(subprocess.Popen):
+class PopenMixin(object):
 	@classmethod
 	def call(Popen, *args, **kwargs):
 		return Popen(*args, **kwargs).wait()
@@ -20,7 +20,7 @@ class PopenBase(subprocess.Popen):
 	def __init__(self, cmd, *args, **kwargs):
 		fail_on_error = kwargs.pop('fail_on_error', False)
 
-		super(PopenBase, self).__init__(cmd, *args, **kwargs)
+		super(PopenMixin, self).__init__(cmd, *args, **kwargs)
 		self.cmd = cmd
 		self._fail_on_error = fail_on_error
 
@@ -29,13 +29,13 @@ class PopenBase(subprocess.Popen):
 			raise subprocess.CalledProcessError(self.returncode, self.cmd)
 
 	def poll(self):
-		super(PopenBase, self).poll()
+		super(PopenMixin, self).poll()
 		if self._fail_on_error:
 			self.check()
 		return self.returncode
 
 	def wait(self):
-		super(PopenBase, self).wait()
+		super(PopenMixin, self).wait()
 		if self._fail_on_error:
 			self.check()
 		return self.returncode
@@ -51,8 +51,8 @@ class SubprocessModule(types.ModuleType):
 	def __init__(self, Popen, name='subprocess', doc=None):
 		super(SubprocessModule, self).__init__(name, doc)
 
-		if not issubclass(Popen, PopenBase):
-			raise ValueError('Popen must be a subclass of PopenBase')
+		if not issubclass(Popen, PopenMixin):
+			Popen = type('Popen', (PopenMixin, Popen,), {})
 
 		self.Popen = Popen
 		self.call = Popen.call
