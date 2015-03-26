@@ -1,4 +1,5 @@
 import pipes
+import subprocess
 
 from superprocess.base import LocalConnection
 
@@ -41,7 +42,11 @@ def connect(netloc):
 	return RemoteShellConnection(hostname, port, username, password)
 
 class RemoteShellConnection(LocalConnection):
-	def __init__(self, hostname, port=None, username=None, password=None, remote_shell=None):
+	def __init__(self, hostname, port=None,
+			username=None, password=None,
+			remote_shell=None, subprocess=subprocess):
+		super(RemoteShellConnection, self).__init__(subprocess)
+
 		# use ssh as default remote shell
 		if not remote_shell:
 			remote_shell = ['ssh']
