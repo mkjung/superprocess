@@ -2,6 +2,11 @@ import pipes
 
 from superprocess.base import LocalConnection
 
+try:
+	string_types = basestring  # Python 2
+except NameError:
+	string_types = str  # Python 3
+
 def call(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
 		return connection.call(*args, **kwargs)
@@ -30,7 +35,7 @@ def connect(netloc):
 	hostname, _, port = host.partition(':')
 
 	# don't use remote shell for localhost unless user or port is specified
-	if not username and not port and hostname in {'localhost', '127.0.0.1'}:
+	if not username and not port and hostname in ('localhost', '127.0.0.1',):
 		return LocalConnection()
 
 	return RemoteShellConnection(hostname, port, username, password)
@@ -40,7 +45,7 @@ class RemoteShellConnection(LocalConnection):
 		# use ssh as default remote shell
 		if not remote_shell:
 			remote_shell = ['ssh']
-		elif isinstance(remote_shell, basestring):
+		elif isinstance(remote_shell, string_types):
 			remote_shell = [remote_shell]
 		else:
 			remote_shell = list(remote_shell)
@@ -57,7 +62,7 @@ class RemoteShellConnection(LocalConnection):
 	# apply function f with cmd adjusted to run in remote shell
 	def apply(self, f, cmd, *args, **kwargs):
 		# quote command for remote shell if provided as list
-		if isinstance(cmd, basestring):
+		if isinstance(cmd, string_types):
 			cmd = [cmd]
 		else:
 			cmd = [pipes.quote(x) for x in cmd]
