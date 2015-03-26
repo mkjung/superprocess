@@ -64,7 +64,7 @@ class SubprocessContext(object):
 		self.subprocess = subprocess
 
 	def __enter__(self):
-		return self
+		return self.subprocess
 
 	def __exit__(self, *exc):
 		self.close()
@@ -72,18 +72,3 @@ class SubprocessContext(object):
 
 	def close(self):
 		pass
-
-	def apply(self, f, *args, **kwargs):
-		return f(*args, **kwargs)
-
-	def call(self, *args, **kwargs):
-		return self.apply(self.subprocess.call, *args, **kwargs)
-
-	def check_call(self, *args, **kwargs):
-		return self.apply(self.subprocess.check_call, *args, **kwargs)
-
-	def check_output(self, *args, **kwargs):
-		return self.apply(self.subprocess.check_output, *args, **kwargs)
-
-	def Popen(self, *args, **kwargs):
-		return self.apply(self.subprocess.Popen, *args, **kwargs)

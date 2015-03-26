@@ -1,7 +1,7 @@
 import pipes
 import subprocess
 
-from superprocess.base import SubprocessContext
+from superprocess.base import SubprocessModule, SubprocessContext
 
 try:
 	string_types = basestring  # Python 2
@@ -45,8 +45,6 @@ class RemoteShellConnection(SubprocessContext):
 	def __init__(self, hostname, port=None,
 			username=None, password=None,
 			remote_shell=None, subprocess=subprocess):
-		super(RemoteShellConnection, self).__init__(subprocess)
-
 		# use ssh as default remote shell
 		if not remote_shell:
 			remote_shell = ['ssh']
@@ -61,21 +59,19 @@ class RemoteShellConnection(SubprocessContext):
 			remote_shell.append(username)
 		remote_shell.append(hostname)
 
-		# store remote shell command list
-		self.remote_shell = remote_shell
+		# create custom Popen class to run commands in remote shell
+		class Popen(subprocess.Popen):
+			def __init__(self, cmd, *args, **kwargs):
+				# quote command for remote shell if provided as list
+				if isinstance(cmd, string_types):
+					cmd = [cmd]
+				else:
+					cmd = [pipes.quote(x) for x in cmd]
+				cmd = remote_shell + cmd
 
-	# apply function f with cmd adjusted to run in remote shell
-	def apply(self, f, cmd, *args, **kwargs):
-		# quote command for remote shell if provided as list
-		if isinstance(cmd, string_types):
-			cmd = [cmd]
-		else:
-			cmd = [pipes.quote(x) for x in cmd]
-		cmd = self.remote_shell + cmd
+				# shell option not suitable for command list
+				kwargs['shell'] = False
 
-		# shell option not suitable for command list
-		kwargs['shell'] = False
+				super(Popen, self).__init__(cmd, *args, **kwargs)
 
-		# call function with updated args
-		return super(RemoteShellConnection, self).apply(
-			f, cmd, *args, **kwargs)
+		super(RemoteShellConnection, self).__init__(SubprocessModule(Popen))
