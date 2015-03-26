@@ -7,12 +7,12 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='rprocess',
+    name='superprocess',
     version='1.0.0.dev',
     description='subprocess-like API for starting local and remote processes',
     long_description=long_description,
 
-    url='https://bitbucket.org/sjdrake/rprocess',
+    url='https://bitbucket.org/sjdrake/superprocess',
     author='Stephen Drake',
     author_email='steve@synergyconsultingnz.com',
 
@@ -27,5 +27,5 @@ setup(
     ],
     keywords='subprocess ssh',
 
-    py_modules=['rprocess'],
+    packages=['superprocess'],
 )
