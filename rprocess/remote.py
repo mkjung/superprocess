@@ -1,6 +1,6 @@
 import pipes
 
-from rprocess.local import LocalConnection
+from rprocess.base import LocalConnection
 
 def call(*args, **kwargs):
 	with connect(kwargs.pop('netloc', None)) as connection:
