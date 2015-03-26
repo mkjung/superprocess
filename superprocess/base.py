@@ -59,7 +59,7 @@ class SubprocessModule(types.ModuleType):
 		self.check_call = Popen.check_call
 		self.check_output = Popen.check_output
 
-class LocalConnection(object):
+class SubprocessContext(object):
 	def __init__(self, subprocess=subprocess):
 		self.subprocess = subprocess
 

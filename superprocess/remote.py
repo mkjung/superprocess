@@ -1,7 +1,7 @@
 import pipes
 import subprocess
 
-from superprocess.base import LocalConnection
+from superprocess.base import SubprocessContext
 
 try:
 	string_types = basestring  # Python 2
@@ -26,9 +26,9 @@ def Popen(*args, **kwargs):
 
 # open a connection that can be used to execute processes
 def connect(netloc):
-	# use local connection if netloc is empty
+	# use default context if netloc is empty
 	if not netloc:
-		return LocalConnection()
+		return SubprocessContext()
 
 	# split netloc
 	user, _, host = netloc.rpartition('@')
@@ -37,11 +37,11 @@ def connect(netloc):
 
 	# don't use remote shell for localhost unless user or port is specified
 	if not username and not port and hostname in ('localhost', '127.0.0.1',):
-		return LocalConnection()
+		return SubprocessContext()
 
 	return RemoteShellConnection(hostname, port, username, password)
 
-class RemoteShellConnection(LocalConnection):
+class RemoteShellConnection(SubprocessContext):
 	def __init__(self, hostname, port=None,
 			username=None, password=None,
 			remote_shell=None, subprocess=subprocess):
