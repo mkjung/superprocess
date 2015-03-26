@@ -1,21 +1,5 @@
 import subprocess
 
-def call(*args, **kwargs):
-	with LocalConnection() as connection:
-		return connection.call(*args, **kwargs)
-
-def check_call(*args, **kwargs):
-	with LocalConnection() as connection:
-		return connection.check_call(*args, **kwargs)
-
-def check_output(*args, **kwargs):
-	with LocalConnection() as connection:
-		return connection.check_output(*args, **kwargs)
-
-def Popen(*args, **kwargs):
-	with LocalConnection() as connection:
-		return connection.Popen(*args, **kwargs)
-
 class LocalConnection(object):
 	def __enter__(self):
 		return self
