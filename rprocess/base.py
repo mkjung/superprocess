@@ -1,4 +1,5 @@
 import subprocess
+import types
 
 class PopenBase(subprocess.Popen):
 	@classmethod
@@ -38,6 +39,25 @@ class PopenBase(subprocess.Popen):
 		if self._fail_on_error:
 			self.check()
 		return self.returncode
+
+class SubprocessModule(types.ModuleType):
+	__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
+		'check_call', 'check_output', 'CalledProcessError']
+
+	PIPE = subprocess.PIPE
+	STDOUT = subprocess.PIPE
+	CalledProcessError = subprocess.CalledProcessError
+
+	def __init__(self, Popen, name='subprocess', doc=None):
+		super(SubprocessModule, self).__init__(name, doc)
+
+		if not issubclass(Popen, PopenBase):
+			raise ValueError('Popen must be a subclass of PopenBase')
+
+		self.Popen = Popen
+		self.call = Popen.call
+		self.check_call = Popen.check_call
+		self.check_output = Popen.check_output
 
 class LocalConnection(object):
 	def __enter__(self):
