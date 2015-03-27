@@ -52,22 +52,34 @@ class RemoteShellConnection(object):
 	def close(self):
 		pass
 
+class ShellMixin(object):
+	def __init__(self, cmd, *args, **kwargs):
+		shell = kwargs.get('shell', False)
+
+		if shell not in (True, False):
+			if isinstance(shell, string_types):
+				shell = [shell]
+			else:
+				shell = list(shell)
+
+			# quote command for shell if provided as list
+			if isinstance(cmd, string_types):
+				cmd = [cmd]
+			else:
+				cmd = [pipes.quote(x) for x in cmd]
+			cmd = shell + cmd
+
+			kwargs['shell'] = False
+
+		super(ShellMixin, self).__init__(cmd, *args, **kwargs)
+
 class RemoteContext(SubprocessContext):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
 		self.connection = connection = connect(netloc)
-		class Popen(subprocess.Popen):
-			def __init__(self, cmd, *args, **kwargs):
-				# quote command for remote shell if provided as list
-				if isinstance(cmd, string_types):
-					cmd = [cmd]
-				else:
-					cmd = [pipes.quote(x) for x in cmd]
-				cmd = connection.shell + cmd
-
-				# shell option not suitable for command list
-				kwargs['shell'] = False
-
-				super(Popen, self).__init__(cmd, *args, **kwargs)
+		class Popen(ShellMixin, subprocess.Popen):
+			def __init__(self, *args, **kwargs):
+				super(Popen, self).__init__(
+					*args, shell=connection.shell, **kwargs)
 
 		super(RemoteContext, self).__init__(SubprocessModule(Popen))
 
