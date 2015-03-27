@@ -90,7 +90,7 @@ class RemoteShellMixin(ShellMixin):
 		finally:
 			self.connection.close()
 
-class RemoteContext(SubprocessContext):
+class RemoteShellContext(SubprocessContext):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
 		self.connection = connection = connect(netloc, remote_shell)
 
@@ -99,7 +99,7 @@ class RemoteContext(SubprocessContext):
 				super(Popen, self).__init__(
 					*args, shell=connection.shell, **kwargs)
 
-		super(RemoteContext, self).__init__(SubprocessModule(Popen))
+		super(RemoteShellContext, self).__init__(SubprocessModule(Popen))
 
 	def close(self):
 		self.connection.close()
