@@ -10,9 +10,9 @@ except NameError:
 
 # open a connection that can be used to execute processes
 def connect(netloc):
-	# use default context if netloc is empty
+	# don't need shell if netloc is empty
 	if not netloc:
-		return SubprocessContext()
+		return NullShellConnection()
 
 	# split netloc
 	user, _, host = netloc.rpartition('@')
@@ -21,14 +21,18 @@ def connect(netloc):
 
 	# don't use remote shell for localhost unless user or port is specified
 	if not username and not port and hostname in ('localhost', '127.0.0.1',):
-		return SubprocessContext()
+		return NullShellConnection()
 
 	return RemoteShellConnection(hostname, port, username, password)
 
-class RemoteShellConnection(SubprocessContext):
+class NullShellConnection(object):
+	shell = False
+	def close(self):
+		pass
+
+class RemoteShellConnection(object):
 	def __init__(self, hostname, port=None,
-			username=None, password=None,
-			remote_shell=None, subprocess=subprocess):
+			username=None, password=None, remote_shell=None):
 		# use ssh as default remote shell
 		if not remote_shell:
 			remote_shell = ['ssh']
@@ -43,7 +47,14 @@ class RemoteShellConnection(SubprocessContext):
 			remote_shell.append(username)
 		remote_shell.append(hostname)
 
-		# create custom Popen class to run commands in remote shell
+		self.shell = remote_shell
+
+	def close(self):
+		pass
+
+class RemoteContext(SubprocessContext):
+	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
+		self.connection = connection = connect(netloc)
 		class Popen(subprocess.Popen):
 			def __init__(self, cmd, *args, **kwargs):
 				# quote command for remote shell if provided as list
@@ -51,11 +62,14 @@ class RemoteShellConnection(SubprocessContext):
 					cmd = [cmd]
 				else:
 					cmd = [pipes.quote(x) for x in cmd]
-				cmd = remote_shell + cmd
+				cmd = connection.shell + cmd
 
 				# shell option not suitable for command list
 				kwargs['shell'] = False
 
 				super(Popen, self).__init__(cmd, *args, **kwargs)
 
-		super(RemoteShellConnection, self).__init__(SubprocessModule(Popen))
+		super(RemoteContext, self).__init__(SubprocessModule(Popen))
+
+	def close(self):
+		self.connection.close()
