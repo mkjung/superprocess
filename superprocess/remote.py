@@ -9,7 +9,7 @@ except NameError:
 	string_types = str  # Python 3
 
 # open a connection that can be used to execute processes
-def connect(netloc):
+def connect(netloc, remote_shell=None):
 	# don't need shell if netloc is empty
 	if not netloc:
 		return NullShellConnection()
@@ -23,7 +23,8 @@ def connect(netloc):
 	if not username and not port and hostname in ('localhost', '127.0.0.1',):
 		return NullShellConnection()
 
-	return RemoteShellConnection(hostname, port, username, password)
+	return RemoteShellConnection(
+		hostname, port, username, password, remote_shell)
 
 class NullShellConnection(object):
 	shell = False
@@ -78,7 +79,7 @@ class RemoteShellMixin(ShellMixin):
 		netloc = kwargs.pop('netloc', None)
 		remote_shell = kwargs.pop('remote_shell', None)
 
-		self.connection = connection = connect(netloc)
+		self.connection = connection = connect(netloc, remote_shell)
 
 		super(RemoteShellMixin, self).__init__(
 			*args, shell=connection.shell, **kwargs)
@@ -91,7 +92,7 @@ class RemoteShellMixin(ShellMixin):
 
 class RemoteContext(SubprocessContext):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
-		self.connection = connection = connect(netloc)
+		self.connection = connection = connect(netloc, remote_shell)
 
 		class Popen(ShellMixin, subprocess.Popen):
 			def __init__(self, *args, **kwargs):
