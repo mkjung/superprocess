@@ -73,9 +73,26 @@ class ShellMixin(object):
 
 		super(ShellMixin, self).__init__(cmd, *args, **kwargs)
 
+class RemoteShellMixin(ShellMixin):
+	def __init__(self, *args, **kwargs):
+		netloc = kwargs.pop('netloc', None)
+		remote_shell = kwargs.pop('remote_shell', None)
+
+		self.connection = connection = connect(netloc)
+
+		super(RemoteShellMixin, self).__init__(
+			*args, shell=connection.shell, **kwargs)
+
+	def wait(self):
+		try:
+			return super(RemoteShellMixin, self).wait()
+		finally:
+			self.connection.close()
+
 class RemoteContext(SubprocessContext):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
 		self.connection = connection = connect(netloc)
+
 		class Popen(ShellMixin, subprocess.Popen):
 			def __init__(self, *args, **kwargs):
 				super(Popen, self).__init__(
