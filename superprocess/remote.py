@@ -8,22 +8,6 @@ try:
 except NameError:
 	string_types = str  # Python 3
 
-def call(*args, **kwargs):
-	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.call(*args, **kwargs)
-
-def check_call(*args, **kwargs):
-	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.check_call(*args, **kwargs)
-
-def check_output(*args, **kwargs):
-	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.check_output(*args, **kwargs)
-
-def Popen(*args, **kwargs):
-	with connect(kwargs.pop('netloc', None)) as connection:
-		return connection.Popen(*args, **kwargs)
-
 # open a connection that can be used to execute processes
 def connect(netloc):
 	# use default context if netloc is empty
