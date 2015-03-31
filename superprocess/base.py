@@ -4,6 +4,11 @@ import types
 class PopenMixin(object):
 	@classmethod
 	def call(Popen, *args, **kwargs):
+		# don't allow pipe, as it is likely to deadlock
+		for s in ('stdin', 'stdout', 'stderr'):
+			if kwargs.get(s) == subprocess.PIPE:
+				raise ValueError('PIPE not allowed when waiting for process')
+
 		return Popen(*args, **kwargs).wait()
 
 	@classmethod
@@ -12,6 +17,10 @@ class PopenMixin(object):
 
 	@classmethod
 	def check_output(Popen, *args, **kwargs):
+		# don't allow stdout arg, it needs to be set to PIPE here
+		if 'stdout' in kwargs:
+			raise ValueError('stdout argument not allowed, it will be overridden')
+
 		out, err = Popen(
 			*args, stdout=subprocess.PIPE, fail_on_error=True, **kwargs
 		).communicate()
