@@ -8,7 +8,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='superprocess',
-    version='0.1.0',
+    version='0.2.0.dev',
     description='subprocess-like API for starting local and remote processes',
     long_description=long_description,
 
