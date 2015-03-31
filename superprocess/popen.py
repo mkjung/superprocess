@@ -3,7 +3,7 @@ import subprocess
 # Popen mixin that adds a classmethod similar to os.popen()
 class OSPopenMixin(object):
 	@classmethod
-	def popen(Popen, cmd, mode='r', buffering=-1):
+	def popen(Popen, cmd, mode='r', buffering=-1, **kwargs):
 		if mode in ('r', 'rt', 'rb'):
 			stdin, stdout = None, subprocess.PIPE
 		elif mode in ('w', 'wt', 'wb'):
@@ -12,7 +12,7 @@ class OSPopenMixin(object):
 			raise ValueError('invalid mode %s' % mode)
 
 		p = Popen(cmd, bufsize=buffering, stdin=stdin, stdout=stdout,
-			universal_newlines=(mode[-1] != 'b'))
+			universal_newlines=(mode[-1] != 'b'), **kwargs)
 
 		# wrap file to wait for process on close
 		f = p.stdin or p.stdout
