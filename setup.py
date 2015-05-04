@@ -12,7 +12,7 @@ setup(
     description='subprocess-like API for starting local and remote processes',
     long_description=long_description,
 
-    url='https://bitbucket.org/sjdrake/superprocess',
+    url='https://bitbucket.org/stevedrake/superprocess',
     author='Stephen Drake',
     author_email='steve@synergyconsultingnz.com',
 
