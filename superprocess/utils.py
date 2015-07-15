@@ -1,3 +1,4 @@
+import io
 import weakref
 
 # Alternative to types.MethodType that weakly binds a method
@@ -20,3 +21,22 @@ class WeaklyBoundMethod(object):
 			raise ReferenceError('weakly-referenced object no longer exists')
 
 		return __func__(__self__, *args, **kwargs)
+
+# Reopen file with new mode, buffer size etc using io module
+def reopen(file, mode='r', buffering=-1,
+		encoding=None, errors=None, newline=None):
+	# create new file object over same file descriptor
+	iofile = io.open(file.fileno(), mode, buffering,
+		encoding, errors, newline, closefd=False)
+
+	# override close method to close original file too
+	def close(self):
+		try:
+			return type(self).close(self)
+		finally:
+			file.close()
+
+	# weakly bind the new close method to avoid a circular reference
+	iofile.close = WeaklyBoundMethod(close, iofile)
+
+	return iofile
