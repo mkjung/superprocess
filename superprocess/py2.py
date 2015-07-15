@@ -3,9 +3,11 @@ import io
 from superprocess.utils import WeaklyBoundMethod
 
 # Reopen file with new mode, buffer size etc using io module
-def reopen(file, *args, **kwargs):
+def reopen(file, mode='r', buffering=-1,
+		encoding=None, errors=None, newline=None):
 	# create new file object over same file descriptor
-	iofile = io.open(file.fileno(), *args, closefd=False, **kwargs)
+	iofile = io.open(file.fileno(), mode, buffering,
+		encoding, errors, newline, closefd=False)
 
 	# override close method to close original file too
 	def close(self):
