@@ -1,11 +1,23 @@
 import io
-import os
+
+from superprocess.utils import WeaklyBoundMethod
 
 # Reopen file with new mode, buffer size etc using io module
 def reopen(file, *args, **kwargs):
-	fd = os.dup(file.fileno())
-	file.close()
-	return io.open(fd, *args, **kwargs)
+	# create new file object over same file descriptor
+	iofile = io.open(file.fileno(), *args, closefd=False, **kwargs)
+
+	# override close method to close original file too
+	def close(self):
+		try:
+			return type(self).close(self)
+		finally:
+			file.close()
+
+	# weakly bind the new close method to avoid a circular reference
+	iofile.close = WeaklyBoundMethod(close, iofile)
+
+	return iofile
 
 # Popen mixin to improve consistency between Python 2 and 3
 class Py2Mixin(object):
