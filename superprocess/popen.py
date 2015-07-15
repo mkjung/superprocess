@@ -1,5 +1,7 @@
 import subprocess
 
+from superprocess.utils import WeaklyBoundMethod
+
 # Popen mixin that adds a classmethod similar to os.popen()
 class OSPopenMixin(object):
 	@classmethod
@@ -13,36 +15,16 @@ class OSPopenMixin(object):
 
 		p = Popen(cmd, bufsize=buffering, stdin=stdin, stdout=stdout,
 			universal_newlines=(mode[-1] != 'b'), **kwargs)
-
-		# wrap file to wait for process on close
 		f = p.stdin or p.stdout
-		return PopenFile(f, p)
 
-# Helper for popen() - wraps file so that it waits for process when closed
-class PopenFile(object):
-	def __init__(self, file, process):
-		self.file = file
-		self.process = process
+		# override close method to return the exit status
+		def close(self):
+			type(self).close(self)
+			returncode = p.wait()
+			if returncode:
+				return returncode
 
-	def __getattr__(self, name):
-		return getattr(self.file, name)
+		# weakly bind the new close method to avoid a circular reference
+		f.close = WeaklyBoundMethod(close, f)
 
-	def __enter__(self):
-		return self
-
-	def __exit__(self, *exc):
-		self.close()
-
-	def __iter__(self):
-		return self
-
-	def __next__(self):
-		return next(self.file)
-
-	next = __next__
-
-	def close(self):
-		self.file.close()
-		returncode = self.process.wait()
-		if returncode:
-			return returncode
+		return f
