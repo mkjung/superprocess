@@ -1,6 +1,10 @@
 import subprocess
 
-from superprocess import base, popen, py2, redirect, remote
+from superprocess.base import PopenMixin
+from superprocess.popen import OSPopenMixin
+from superprocess.py2 import Py2Mixin
+from superprocess.redirect import RedirectMixin
+from superprocess.remote import RemoteShellMixin
 
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call',
 	'check_call', 'check_output', 'CalledProcessError']
@@ -11,11 +15,11 @@ STDERR = redirect.STDERR
 CalledProcessError = subprocess.CalledProcessError
 
 class Popen(
-		popen.OSPopenMixin,
-		redirect.RedirectMixin,
-		remote.RemoteShellMixin,
-		base.PopenMixin,
-		py2.Py2Mixin,
+		OSPopenMixin,
+		RedirectMixin,
+		RemoteShellMixin,
+		PopenMixin,
+		Py2Mixin,
 		subprocess.Popen):
 	pass
 
