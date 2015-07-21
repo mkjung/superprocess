@@ -2,6 +2,31 @@ import subprocess
 import types
 from functools import wraps
 
+def superprocess(subprocess=subprocess):
+	module = types.ModuleType('superprocess', subprocess.__doc__)
+
+	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
+		'check_call', 'check_output', 'CalledProcessError']
+
+	module.PIPE = subprocess.PIPE
+	module.STDOUT = subprocess.STDOUT
+	module.CalledProcessError = subprocess.CalledProcessError
+
+	module.call = wraps(subprocess.call)(call(module))
+	module.check_call = wraps(subprocess.check_call)(check_call(module))
+	module.check_output = check_output(module)
+	try:
+		module.check_output = wraps(subprocess.check_output)(module.check_output)
+	except AttributeError:
+		pass  # check_output not defined in Python 2.6
+
+	bases = (subprocess.Popen,)
+	if not issubclass(subprocess.Popen, PopenMixin):
+		bases = (PopenMixin,) + bases
+	module.Popen = type('Popen', bases, {})
+
+	return module
+
 def call(subprocess):
 	def call(*args, **kwargs):
 		# don't allow pipe, as it is likely to deadlock
@@ -50,28 +75,3 @@ class PopenMixin(object):
 		if self._fail_on_error:
 			self.check()
 		return self.returncode
-
-def superprocess(subprocess=subprocess):
-	module = types.ModuleType('superprocess', subprocess.__doc__)
-
-	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
-		'check_call', 'check_output', 'CalledProcessError']
-
-	module.PIPE = subprocess.PIPE
-	module.STDOUT = subprocess.STDOUT
-	module.CalledProcessError = subprocess.CalledProcessError
-
-	module.call = wraps(subprocess.call)(call(module))
-	module.check_call = wraps(subprocess.check_call)(check_call(module))
-	module.check_output = check_output(module)
-	try:
-		module.check_output = wraps(subprocess.check_output)(module.check_output)
-	except AttributeError:
-		pass  # check_output not defined in Python 2.6
-
-	bases = (subprocess.Popen,)
-	if not issubclass(subprocess.Popen, PopenMixin):
-		bases = (PopenMixin,) + bases
-	module.Popen = type('Popen', bases, {})
-
-	return module
