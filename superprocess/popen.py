@@ -1,11 +1,8 @@
-import subprocess
-
 from superprocess.utils import WeaklyBoundMethod
 
-# Popen mixin that adds a classmethod similar to os.popen()
-class OSPopenMixin(object):
-	@classmethod
-	def popen(Popen, cmd, mode='r', buffering=-1, **kwargs):
+# Open a pipe to / from a command - similar to os.popen()
+def popen(subprocess):
+	def popen(cmd, mode='r', buffering=-1, **kwargs):
 		if mode in ('r', 'rt', 'rb'):
 			stdin, stdout = None, subprocess.PIPE
 		elif mode in ('w', 'wt', 'wb'):
@@ -13,7 +10,7 @@ class OSPopenMixin(object):
 		else:
 			raise ValueError('invalid mode %s' % mode)
 
-		p = Popen(cmd, bufsize=buffering, stdin=stdin, stdout=stdout,
+		p = subprocess.Popen(cmd, bufsize=buffering, stdin=stdin, stdout=stdout,
 			universal_newlines=(mode[-1] != 'b'), **kwargs)
 		f = p.stdin or p.stdout
 
@@ -28,3 +25,4 @@ class OSPopenMixin(object):
 		f.close = WeaklyBoundMethod(close, f)
 
 		return f
+	return popen
