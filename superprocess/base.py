@@ -64,9 +64,9 @@ def superprocess(subprocess=subprocess):
 	module.check_call = check_call(module)
 	module.check_output = check_output(module)
 
-	Popen = subprocess.Popen
-	if not issubclass(Popen, PopenMixin):
-		Popen = type('Popen', (PopenMixin, Popen,), {})
-	module.Popen = Popen
+	bases = (subprocess.Popen,)
+	if not issubclass(subprocess.Popen, PopenMixin):
+		bases = (PopenMixin,) + bases
+	module.Popen = type('Popen', bases, {})
 
 	return module
