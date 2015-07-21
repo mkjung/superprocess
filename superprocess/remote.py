@@ -92,24 +92,21 @@ class RemoteShellMixin(ShellMixin):
 
 class RemoteShellContext(object):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
+		self.superprocess = superprocess(subprocess)
 		self.connection = connection = connect(netloc, remote_shell)
 
-		sp = superprocess(subprocess)
-
-		class Popen(ShellMixin, sp.Popen):
+		class Popen(ShellMixin, self.superprocess.Popen):
 			def __init__(self, *args, **kwargs):
 				super(Popen, self).__init__(
 					*args, shell=connection.shell, **kwargs)
 
-		sp.Popen = Popen
-		sp.call = Popen.call
-		sp.check_call = Popen.check_call
-		sp.check_output = Popen.check_output
-
-		self.subprocess = sp
+		self.superprocess.Popen = Popen
+		self.superprocess.call = Popen.call
+		self.superprocess.check_call = Popen.check_call
+		self.superprocess.check_output = Popen.check_output
 
 	def __enter__(self):
-		return self.subprocess
+		return self.superprocess
 
 	def __exit__(self, *exc):
 		self.close()
