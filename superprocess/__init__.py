@@ -23,8 +23,9 @@ class Popen(
 		Py2Mixin,
 		impl.Popen):
 	pass
+impl.Popen = Popen
 
-call = Popen.call
-check_call = Popen.check_call
-check_output = Popen.check_output
+call = impl.call
+check_call = impl.check_call
+check_output = impl.check_output
 popen = Popen.popen

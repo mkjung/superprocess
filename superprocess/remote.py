@@ -99,11 +99,7 @@ class RemoteShellContext(object):
 			def __init__(self, *args, **kwargs):
 				super(Popen, self).__init__(
 					*args, shell=connection.shell, **kwargs)
-
 		self.superprocess.Popen = Popen
-		self.superprocess.call = Popen.call
-		self.superprocess.check_call = Popen.check_call
-		self.superprocess.check_output = Popen.check_output
 
 	def __enter__(self):
 		return self.superprocess
