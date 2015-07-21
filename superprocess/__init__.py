@@ -1,5 +1,3 @@
-import subprocess
-
 from superprocess.base import superprocess
 from superprocess.popen import popen
 from superprocess.py2 import Py2Mixin
@@ -9,7 +7,7 @@ from superprocess.remote import RemoteShellMixin
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call',
 	'check_call', 'check_output', 'CalledProcessError']
 
-impl = superprocess(subprocess)
+impl = superprocess()
 
 PIPE = impl.PIPE
 STDOUT = impl.PIPE
