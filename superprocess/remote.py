@@ -1,7 +1,7 @@
 import pipes
 import subprocess
 
-from superprocess.base import superprocess, SubprocessContext
+from superprocess.base import superprocess
 
 try:
 	string_types = basestring  # Python 2
@@ -90,7 +90,7 @@ class RemoteShellMixin(ShellMixin):
 		finally:
 			self.connection.close()
 
-class RemoteShellContext(SubprocessContext):
+class RemoteShellContext(object):
 	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
 		self.connection = connection = connect(netloc, remote_shell)
 
@@ -106,7 +106,14 @@ class RemoteShellContext(SubprocessContext):
 		sp.check_call = Popen.check_call
 		sp.check_output = Popen.check_output
 
-		super(RemoteShellContext, self).__init__(sp)
+		self.subprocess = sp
+
+	def __enter__(self):
+		return self.subprocess
+
+	def __exit__(self, *exc):
+		self.close()
+		return False
 
 	def close(self):
 		self.connection.close()

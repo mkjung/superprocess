@@ -69,17 +69,3 @@ def superprocess(subprocess=subprocess):
 	module.check_output = Popen.check_output
 
 	return module
-
-class SubprocessContext(object):
-	def __init__(self, subprocess=subprocess):
-		self.subprocess = subprocess
-
-	def __enter__(self):
-		return self.subprocess
-
-	def __exit__(self, *exc):
-		self.close()
-		return False
-
-	def close(self):
-		pass
