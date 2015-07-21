@@ -1,5 +1,6 @@
 import subprocess
 import types
+from functools import wraps
 
 def call(subprocess):
 	def call(*args, **kwargs):
@@ -60,9 +61,13 @@ def superprocess(subprocess=subprocess):
 	module.STDOUT = subprocess.STDOUT
 	module.CalledProcessError = subprocess.CalledProcessError
 
-	module.call = call(module)
-	module.check_call = check_call(module)
+	module.call = wraps(subprocess.call)(call(module))
+	module.check_call = wraps(subprocess.check_call)(check_call(module))
 	module.check_output = check_output(module)
+	try:
+		module.check_output = wraps(subprocess.check_output)(module.check_output)
+	except AttributeError:
+		pass  # check_output not defined in Python 2.6
 
 	bases = (subprocess.Popen,)
 	if not issubclass(subprocess.Popen, PopenMixin):
