@@ -49,24 +49,26 @@ class PopenMixin(object):
 			self.check()
 		return self.returncode
 
-class SubprocessModule(types.ModuleType):
-	__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
+def superprocess(subprocess=subprocess):
+	module = types.ModuleType('superprocess', subprocess.__doc__)
+
+	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
 		'check_call', 'check_output', 'CalledProcessError']
 
-	PIPE = subprocess.PIPE
-	STDOUT = subprocess.PIPE
-	CalledProcessError = subprocess.CalledProcessError
+	module.PIPE = subprocess.PIPE
+	module.STDOUT = subprocess.STDOUT
+	module.CalledProcessError = subprocess.CalledProcessError
 
-	def __init__(self, Popen, name='subprocess', doc=None):
-		super(SubprocessModule, self).__init__(name, doc)
+	Popen = subprocess.Popen
+	if not issubclass(Popen, PopenMixin):
+		Popen = type('Popen', (PopenMixin, Popen,), {})
 
-		if not issubclass(Popen, PopenMixin):
-			Popen = type('Popen', (PopenMixin, Popen,), {})
+	module.Popen = Popen
+	module.call = Popen.call
+	module.check_call = Popen.check_call
+	module.check_output = Popen.check_output
 
-		self.Popen = Popen
-		self.call = Popen.call
-		self.check_call = Popen.check_call
-		self.check_output = Popen.check_output
+	return module
 
 class SubprocessContext(object):
 	def __init__(self, subprocess=subprocess):
