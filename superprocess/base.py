@@ -21,8 +21,8 @@ def superprocess(subprocess=subprocess):
 		pass  # check_output not defined in Python 2.6
 
 	bases = (subprocess.Popen,)
-	if not issubclass(subprocess.Popen, PopenMixin):
-		bases = (PopenMixin,) + bases
+	if not issubclass(subprocess.Popen, CheckMixin):
+		bases = (CheckMixin,) + bases
 	module.Popen = type('Popen', bases, {})
 
 	return module
@@ -52,11 +52,11 @@ def check_output(subprocess):
 		return out
 	return check_output
 
-class PopenMixin(object):
+class CheckMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
 		check = kwargs.pop('check', False)
 
-		super(PopenMixin, self).__init__(cmd, *args, **kwargs)
+		super(CheckMixin, self).__init__(cmd, *args, **kwargs)
 		self.cmd = cmd
 		self._check = check
 
@@ -65,13 +65,13 @@ class PopenMixin(object):
 			raise subprocess.CalledProcessError(self.returncode, self.cmd)
 
 	def poll(self):
-		super(PopenMixin, self).poll()
+		super(CheckMixin, self).poll()
 		if self._check:
 			self.check_returncode()
 		return self.returncode
 
 	def wait(self):
-		super(PopenMixin, self).wait()
+		super(CheckMixin, self).wait()
 		if self._check:
 			self.check_returncode()
 		return self.returncode
