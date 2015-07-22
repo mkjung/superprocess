@@ -79,9 +79,10 @@ class RemoteShellMixin(ShellMixin):
 		remote_shell = kwargs.pop('remote_shell', None)
 
 		self.connection = connection = connect(netloc, remote_shell)
+		if netloc:
+			kwargs['shell'] = connection.shell
 
-		super(RemoteShellMixin, self).__init__(
-			*args, shell=connection.shell, **kwargs)
+		super(RemoteShellMixin, self).__init__(*args, **kwargs)
 
 	def wait(self):
 		try:
