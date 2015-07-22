@@ -1,6 +1,9 @@
+import io
 import subprocess
 import types
 from functools import wraps
+
+from superprocess.utils import reopen
 
 def superprocess(subprocess=subprocess):
 	module = types.ModuleType('superprocess', subprocess.__doc__)
@@ -21,6 +24,8 @@ def superprocess(subprocess=subprocess):
 		pass  # check_output not defined in Python 2.6
 
 	bases = (subprocess.Popen,)
+	if not issubclass(subprocess.Popen, Py2Mixin):
+		bases = (Py2Mixin,) + bases
 	if not issubclass(subprocess.Popen, CheckMixin):
 		bases = (CheckMixin,) + bases
 	module.Popen = type('Popen', bases, {})
@@ -52,6 +57,32 @@ def check_output(subprocess):
 		return out
 	return check_output
 
+# Popen mixin to improve consistency between Python 2 and 3
+class Py2Mixin(object):
+	def __init__(self, *args, **kwargs):
+		bufsize = kwargs.pop('bufsize', -1)
+		universal_newlines = kwargs.pop('universal_newlines', False)
+
+		# initialise process
+		super(Py2Mixin, self).__init__(*args, bufsize=bufsize,
+			universal_newlines=universal_newlines, **kwargs)
+
+		# reopen standard streams with io module
+		if self.stdin and not isinstance(self.stdin, io.IOBase):
+			self.stdin = reopen(self.stdin, 'wb', bufsize)
+			if universal_newlines:
+				self.stdin = io.TextIOWrapper(self.stdin,
+					write_through=True, line_buffering=(bufsize == 1))
+		if self.stdout and not isinstance(self.stdout, io.IOBase):
+			self.stdout = reopen(self.stdout, 'rb', bufsize)
+			if universal_newlines:
+				self.stdout = io.TextIOWrapper(self.stdout)
+		if self.stderr and not isinstance(self.stderr, io.IOBase):
+			self.stderr = reopen(self.stderr, 'rb', bufsize)
+			if universal_newlines:
+				self.stderr = io.TextIOWrapper(self.stderr)
+
+# Popen mixin that adds support for checking the return code on poll / wait
 class CheckMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
 		check = kwargs.pop('check', False)

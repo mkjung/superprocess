@@ -1,6 +1,5 @@
 from superprocess.base import superprocess
 from superprocess.popen import popen
-from superprocess.py2 import Py2Mixin
 from superprocess.redirect import RedirectMixin
 from superprocess.remote import RemoteShellMixin
 
@@ -17,7 +16,6 @@ CalledProcessError = impl.CalledProcessError
 class Popen(
 		RedirectMixin,
 		RemoteShellMixin,
-		Py2Mixin,
 		impl.Popen):
 	pass
 impl.Popen = Popen
