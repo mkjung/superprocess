@@ -4,7 +4,7 @@ from superprocess.redirect import RedirectMixin
 from superprocess.remote import RemoteShellMixin
 
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call',
-	'check_call', 'check_output', 'CalledProcessError']
+	'check_call', 'check_output', 'popen', 'CalledProcessError']
 
 # create default superprocess instance
 impl = superprocess()
