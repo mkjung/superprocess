@@ -38,7 +38,7 @@ def call(subprocess):
 
 def check_call(subprocess):
 	def check_call(*args, **kwargs):
-		return subprocess.call(*args, fail_on_error=True, **kwargs)
+		return subprocess.call(*args, check=True, **kwargs)
 	return check_call
 
 def check_output(subprocess):
@@ -47,31 +47,31 @@ def check_output(subprocess):
 		if 'stdout' in kwargs:
 			raise ValueError('stdout argument not allowed, it will be overridden')
 		out, err = subprocess.Popen(
-			*args, stdout=subprocess.PIPE, fail_on_error=True, **kwargs
+			*args, stdout=subprocess.PIPE, check=True, **kwargs
 		).communicate()
 		return out
 	return check_output
 
 class PopenMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
-		fail_on_error = kwargs.pop('fail_on_error', False)
+		check = kwargs.pop('check', False)
 
 		super(PopenMixin, self).__init__(cmd, *args, **kwargs)
 		self.cmd = cmd
-		self._fail_on_error = fail_on_error
+		self._check = check
 
-	def check(self):
+	def check_returncode(self):
 		if self.returncode:
 			raise subprocess.CalledProcessError(self.returncode, self.cmd)
 
 	def poll(self):
 		super(PopenMixin, self).poll()
-		if self._fail_on_error:
-			self.check()
+		if self._check:
+			self.check_returncode()
 		return self.returncode
 
 	def wait(self):
 		super(PopenMixin, self).wait()
-		if self._fail_on_error:
-			self.check()
+		if self._check:
+			self.check_returncode()
 		return self.returncode
