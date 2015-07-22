@@ -1,6 +1,6 @@
 from superprocess.base import superprocess
 from superprocess.popen import popen
-from superprocess.redirect import RedirectMixin
+from superprocess.redirect import STDERR, RedirectMixin
 from superprocess.remote import RemoteShellMixin
 
 # create default superprocess instance
@@ -9,7 +9,7 @@ impl = superprocess()
 # apply extensions from submodules
 impl.__all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call',
 	'check_call', 'check_output', 'popen', 'CalledProcessError']
-impl.STDERR = redirect.STDERR
+impl.STDERR = STDERR
 impl.popen = popen(impl)
 impl.Popen = type('Popen',
 	(RedirectMixin, RemoteShellMixin, impl.Popen,), {})
