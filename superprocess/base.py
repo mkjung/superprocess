@@ -1,11 +1,14 @@
 import io
-import subprocess
+import subprocess as _subprocess
 import types
 from functools import wraps
 
 from superprocess.utils import reopen
 
-def superprocess(subprocess=subprocess):
+def superprocess(subprocess=None):
+	if subprocess is None:
+		subprocess = _subprocess
+
 	module = types.ModuleType('superprocess', subprocess.__doc__)
 
 	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
@@ -93,7 +96,7 @@ class CheckMixin(object):
 
 	def check_returncode(self):
 		if self.returncode:
-			raise subprocess.CalledProcessError(self.returncode, self.cmd)
+			raise _subprocess.CalledProcessError(self.returncode, self.cmd)
 
 	def poll(self):
 		super(CheckMixin, self).poll()
