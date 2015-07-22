@@ -1,5 +1,4 @@
 import pipes
-import subprocess
 
 from superprocess.base import superprocess
 
@@ -91,7 +90,7 @@ class RemoteShellMixin(ShellMixin):
 			self.connection.close()
 
 class RemoteShellContext(object):
-	def __init__(self, netloc, remote_shell=None, subprocess=subprocess):
+	def __init__(self, netloc, remote_shell=None, subprocess=None):
 		self.superprocess = superprocess(subprocess)
 		self.connection = connection = connect(netloc, remote_shell)
 
