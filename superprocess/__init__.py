@@ -17,7 +17,7 @@ impl.Popen = type('Popen',
 # extract items into superprocess namespace
 __all__ = impl.__all__
 PIPE = impl.PIPE
-STDOUT = impl.PIPE
+STDOUT = impl.STDOUT
 STDERR = impl.STDERR
 CalledProcessError = impl.CalledProcessError
 call = impl.call
