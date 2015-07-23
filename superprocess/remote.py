@@ -1,4 +1,8 @@
 import pipes
+try:
+	from urllib.parse import SplitResult
+except ImportError:
+	from urlparse import SplitResult
 
 from superprocess.base import superprocess
 
@@ -9,13 +13,9 @@ except NameError:
 
 # open a connection that can be used to execute processes
 def connect(netloc, remote_shell=None):
-	# split netloc
-	user, _, host = netloc.rpartition('@')
-	username, _, password = user.partition(':')
-	hostname, _, port = host.partition(':')
-
+	url = SplitResult(None, netloc, None, None, None)
 	return RemoteShellConnection(
-		hostname, port, username, password, remote_shell)
+		url.hostname, url.port, url.username, url.password, remote_shell)
 
 class RemoteShellConnection(object):
 	def __init__(self, hostname, port=None,
