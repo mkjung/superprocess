@@ -57,13 +57,15 @@ def check_output(subprocess):
 
 # Popen mixin to improve consistency between Python 2 and 3
 class Py2Mixin(object):
-	def __init__(self, *args, **kwargs):
+	def __init__(self, cmd, *args, **kwargs):
 		bufsize = kwargs.pop('bufsize', -1)
 		universal_newlines = kwargs.pop('universal_newlines', False)
 
 		# initialise process
-		super(Py2Mixin, self).__init__(*args, bufsize=bufsize,
+		super(Py2Mixin, self).__init__(cmd, *args, bufsize=bufsize,
 			universal_newlines=universal_newlines, **kwargs)
+		if not hasattr(self, 'args'):
+			self.args = cmd
 
 		# reopen standard streams with io module
 		if self.stdin and not isinstance(self.stdin, io.IOBase):
@@ -82,16 +84,13 @@ class Py2Mixin(object):
 
 # Popen mixin that adds support for checking the return code on poll / wait
 class CheckMixin(object):
-	def __init__(self, cmd, *args, **kwargs):
-		check = kwargs.pop('check', False)
-
-		super(CheckMixin, self).__init__(cmd, *args, **kwargs)
-		self.cmd = cmd
-		self._check = check
+	def __init__(self, *args, **kwargs):
+		self._check = kwargs.pop('check', False)
+		super(CheckMixin, self).__init__(*args, **kwargs)
 
 	def check_returncode(self):
 		if self.returncode:
-			raise _subprocess.CalledProcessError(self.returncode, self.cmd)
+			raise _subprocess.CalledProcessError(self.returncode, self.args)
 
 	def poll(self):
 		super(CheckMixin, self).poll()
