@@ -78,9 +78,11 @@ class RemoteShellMixin(ShellMixin):
 		netloc = kwargs.pop('netloc', None)
 		remote_shell = kwargs.pop('remote_shell', None)
 
-		self.connection = connection = connect(netloc, remote_shell)
-		if netloc:
-			kwargs['shell'] = connection.shell
+		if not netloc:
+			self.connection = None
+		else:
+			self.connection = connect(netloc, remote_shell)
+			kwargs['shell'] = self.connection.shell
 
 		super(RemoteShellMixin, self).__init__(*args, **kwargs)
 
@@ -88,7 +90,8 @@ class RemoteShellMixin(ShellMixin):
 		try:
 			return super(RemoteShellMixin, self).wait()
 		finally:
-			self.connection.close()
+			if self.connection:
+				self.connection.close()
 
 class RemoteShellContext(object):
 	def __init__(self, netloc, remote_shell=None, subprocess=None):
