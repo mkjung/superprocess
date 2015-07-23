@@ -131,8 +131,8 @@ class CheckMixin(object):
 			self.check_returncode()
 		return self.returncode
 
-	def wait(self):
-		super(CheckMixin, self).wait()
+	def wait(self, *args, **kwargs):
+		super(CheckMixin, self).wait(*args, **kwargs)
 		if self._check:
 			self.check_returncode()
 		return self.returncode

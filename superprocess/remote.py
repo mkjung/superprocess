@@ -73,9 +73,9 @@ class RemoteShellMixin(ShellMixin):
 
 		super(RemoteShellMixin, self).__init__(*args, **kwargs)
 
-	def wait(self):
+	def wait(self, *args, **kwargs):
 		try:
-			return super(RemoteShellMixin, self).wait()
+			return super(RemoteShellMixin, self).wait(*args, **kwargs)
 		finally:
 			if self.connection:
 				self.connection.close()
