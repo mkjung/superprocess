@@ -26,12 +26,7 @@ def superprocess(subprocess=None):
 	except AttributeError:
 		pass  # check_output not defined in Python 2.6
 
-	bases = (subprocess.Popen,)
-	if not issubclass(subprocess.Popen, Py2Mixin):
-		bases = (Py2Mixin,) + bases
-	if not issubclass(subprocess.Popen, CheckMixin):
-		bases = (CheckMixin,) + bases
-	module.Popen = type('Popen', bases, {})
+	module.Popen = type('Popen', (CheckMixin, Py2Mixin, subprocess.Popen), {})
 
 	return module
 
