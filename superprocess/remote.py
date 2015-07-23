@@ -9,26 +9,13 @@ except NameError:
 
 # open a connection that can be used to execute processes
 def connect(netloc, remote_shell=None):
-	# don't need shell if netloc is empty
-	if not netloc:
-		return NullShellConnection()
-
 	# split netloc
 	user, _, host = netloc.rpartition('@')
 	username, _, password = user.partition(':')
 	hostname, _, port = host.partition(':')
 
-	# don't use remote shell for localhost unless user or port is specified
-	if not username and not port and hostname in ('localhost', '127.0.0.1',):
-		return NullShellConnection()
-
 	return RemoteShellConnection(
 		hostname, port, username, password, remote_shell)
-
-class NullShellConnection(object):
-	shell = False
-	def close(self):
-		pass
 
 class RemoteShellConnection(object):
 	def __init__(self, hostname, port=None,
