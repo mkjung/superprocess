@@ -65,16 +65,12 @@ def run(subprocess):
 
 def call(subprocess):
 	def call(*args, **kwargs):
-		# don't allow pipe, as it is likely to deadlock
-		for s in ('stdin', 'stdout', 'stderr'):
-			if kwargs.get(s) == subprocess.PIPE:
-				raise ValueError('PIPE not allowed when waiting for process')
-		return subprocess.Popen(*args, **kwargs).wait()
+		return subprocess.run(*args, **kwargs).returncode
 	return call
 
 def check_call(subprocess):
 	def check_call(*args, **kwargs):
-		return subprocess.call(*args, check=True, **kwargs)
+		return subprocess.run(*args, check=True, **kwargs).returncode
 	return check_call
 
 def check_output(subprocess):
@@ -82,10 +78,8 @@ def check_output(subprocess):
 		# don't allow stdout arg, it needs to be set to PIPE here
 		if 'stdout' in kwargs:
 			raise ValueError('stdout argument not allowed, it will be overridden')
-		out, err = subprocess.Popen(
-			*args, stdout=subprocess.PIPE, check=True, **kwargs
-		).communicate()
-		return out
+		return subprocess.run(
+			*args, stdout=subprocess.PIPE, check=True, **kwargs).stdout
 	return check_output
 
 # Popen mixin to improve consistency between Python 2 and 3
