@@ -11,13 +11,15 @@ def superprocess(subprocess=None):
 
 	module = types.ModuleType('superprocess', subprocess.__doc__)
 
-	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call',
-		'check_call', 'check_output', 'CalledProcessError']
+	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call', 'check_call',
+		'check_output', 'run', 'CalledProcessError', 'CompletedProcess']
 
 	module.PIPE = subprocess.PIPE
 	module.STDOUT = subprocess.STDOUT
 	module.CalledProcessError = subprocess.CalledProcessError
+	module.CompletedProcess = CompletedProcess(module)
 
+	module.run = run(module)
 	module.call = wraps(subprocess.call)(call(module))
 	module.check_call = wraps(subprocess.check_call)(check_call(module))
 	module.check_output = check_output(module)
@@ -29,6 +31,37 @@ def superprocess(subprocess=None):
 	module.Popen = type('Popen', (CheckMixin, Py2Mixin, subprocess.Popen), {})
 
 	return module
+
+def CompletedProcess(subprocess):
+	class CompletedProcess(object):
+		def __init__(self, args, returncode, stdout=None, stderr=None):
+			self.args = args
+			self.returncode = returncode
+			self.stdout = stdout
+			self.stderr = stderr
+
+		def check_returncode(self):
+			if self.returncode:
+				raise subprocess.CalledProcessError(self.returncode, self.args)
+	return CompletedProcess
+
+def run(subprocess):
+	def run(*args, **kwargs):
+		input = kwargs.pop('input', None)
+		check = kwargs.pop('check', False)
+
+		if input is not None:
+			if 'stdin' in kwargs:
+				raise ValueError('stdin and input arguments may not both be used')
+			kwargs['stdin'] = subprocess.PIPE
+
+		p = subprocess.Popen(*args, **kwargs)
+		stdout, stderr = p.communicate(input)
+		result = subprocess.CompletedProcess(p.args, p.returncode, stdout, stderr)
+		if check:
+			result.check_returncode()
+		return result
+	return run
 
 def call(subprocess):
 	def call(*args, **kwargs):
