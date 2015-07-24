@@ -8,7 +8,8 @@ impl = superprocess()
 
 # apply extensions from submodules
 impl.__all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call', 'check_call',
-	'check_output', 'popen', 'run', 'CalledProcessError', 'CompletedProcess']
+	'getstatusoutput', 'getoutput', 'check_output', 'popen', 'run',
+	'CalledProcessError', 'CompletedProcess']
 impl.STDERR = STDERR
 impl.popen = popen(impl)
 impl.Popen = type('Popen',
@@ -25,5 +26,7 @@ run = impl.run
 call = impl.call
 check_call = impl.check_call
 check_output = impl.check_output
+getstatusoutput = impl.getstatusoutput
+getoutput = impl.getoutput
 popen = impl.popen
 Popen = impl.Popen

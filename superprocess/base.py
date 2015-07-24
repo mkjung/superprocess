@@ -11,7 +11,8 @@ def superprocess(subprocess=None):
 	module = types.ModuleType('superprocess', subprocess.__doc__)
 
 	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call', 'check_call',
-		'check_output', 'run', 'CalledProcessError', 'CompletedProcess']
+		'getstatusoutput', 'getoutput', 'check_output', 'run',
+		'CalledProcessError', 'CompletedProcess']
 
 	module.PIPE = subprocess.PIPE
 	module.STDOUT = subprocess.STDOUT
@@ -22,6 +23,8 @@ def superprocess(subprocess=None):
 	module.call = call(module)
 	module.check_call = check_call(module)
 	module.check_output = check_output(module)
+	module.getstatusoutput = getstatusoutput(module)
+	module.getoutput = getoutput(module)
 
 	module.Popen = type('Popen', (CheckMixin, Py2Mixin, subprocess.Popen), {})
 
@@ -76,6 +79,21 @@ def check_output(subprocess):
 		return subprocess.run(
 			*args, stdout=subprocess.PIPE, check=True, **kwargs).stdout
 	return check_output
+
+def getstatusoutput(subprocess):
+	def getstatusoutput(cmd):
+		p = subprocess.run(cmd, shell=True, universal_newlines=True,
+			stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		status, output = p.returncode, p.stdout
+		if output.endswith('\n'):
+			output = output[:-1]
+		return status, output
+	return getstatusoutput
+
+def getoutput(subprocess):
+	def getoutput(cmd):
+		return subprocess.getstatusoutput(cmd)[1]
+	return getoutput
 
 # Popen mixin to improve consistency between Python 2 and 3
 class Py2Mixin(object):
