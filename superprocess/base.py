@@ -1,7 +1,6 @@
 import io
 import subprocess as _subprocess
 import types
-from functools import wraps
 
 from superprocess.utils import reopen
 
@@ -20,13 +19,9 @@ def superprocess(subprocess=None):
 	module.CompletedProcess = CompletedProcess(module)
 
 	module.run = run(module)
-	module.call = wraps(subprocess.call)(call(module))
-	module.check_call = wraps(subprocess.check_call)(check_call(module))
+	module.call = call(module)
+	module.check_call = check_call(module)
 	module.check_output = check_output(module)
-	try:
-		module.check_output = wraps(subprocess.check_output)(module.check_output)
-	except AttributeError:
-		pass  # check_output not defined in Python 2.6
 
 	module.Popen = type('Popen', (CheckMixin, Py2Mixin, subprocess.Popen), {})
 
