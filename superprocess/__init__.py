@@ -1,5 +1,5 @@
 from superprocess.base import superprocess
-from superprocess.popen import popen
+from superprocess.pipe import popen
 from superprocess.redirect import STDERR, RedirectMixin
 from superprocess.remote import RemoteShellMixin
 
