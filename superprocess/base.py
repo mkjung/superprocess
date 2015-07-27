@@ -7,6 +7,8 @@ from superprocess.utils import reopen
 def superprocess(subprocess=None):
 	if subprocess is None:
 		subprocess = _subprocess
+	assert subprocess.PIPE == PIPE
+	assert subprocess.STDOUT == STDOUT
 
 	module = types.ModuleType('superprocess', subprocess.__doc__)
 
@@ -29,6 +31,9 @@ def superprocess(subprocess=None):
 	module.Popen = type('Popen', (Py2Mixin, subprocess.Popen), {})
 
 	return module
+
+PIPE = _subprocess.PIPE
+STDOUT = _subprocess.STDOUT
 
 def CompletedProcess(subprocess):
 	class CompletedProcess(object):
