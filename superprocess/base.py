@@ -13,27 +13,27 @@ def superprocess(subprocess=None):
 	assert subprocess.PIPE == PIPE
 	assert subprocess.STDOUT == STDOUT
 
-	module = types.ModuleType('superprocess', subprocess.__doc__)
+	superprocess = types.ModuleType('superprocess', subprocess.__doc__)
 
-	module.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call', 'check_call',
+	superprocess.__all__ = ['Popen', 'PIPE', 'STDOUT', 'call', 'check_call',
 		'getstatusoutput', 'getoutput', 'check_output', 'run',
 		'CalledProcessError', 'CompletedProcess']
 
-	module.PIPE = subprocess.PIPE
-	module.STDOUT = subprocess.STDOUT
-	module.CalledProcessError = subprocess.CalledProcessError
-	module.CompletedProcess = CompletedProcess(module)
+	superprocess.PIPE = subprocess.PIPE
+	superprocess.STDOUT = subprocess.STDOUT
+	superprocess.CalledProcessError = subprocess.CalledProcessError
+	superprocess.CompletedProcess = CompletedProcess(superprocess)
 
-	module.run = run(module)
-	module.call = call(module)
-	module.check_call = check_call(module)
-	module.check_output = check_output(module)
-	module.getstatusoutput = getstatusoutput(module)
-	module.getoutput = getoutput(module)
+	superprocess.run = run(superprocess)
+	superprocess.call = call(superprocess)
+	superprocess.check_call = check_call(superprocess)
+	superprocess.check_output = check_output(superprocess)
+	superprocess.getstatusoutput = getstatusoutput(superprocess)
+	superprocess.getoutput = getoutput(superprocess)
 
-	module.Popen = type('Popen', (Py2Mixin, subprocess.Popen), {})
+	superprocess.Popen = type('Popen', (Py2Mixin, subprocess.Popen), {})
 
-	return module
+	return superprocess
 
 PIPE = _subprocess.PIPE
 STDOUT = _subprocess.STDOUT
