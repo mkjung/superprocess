@@ -1,18 +1,22 @@
 from superprocess import base, pipe, redirect, remote
 
-# create default superprocess instance
-impl = base.Superprocess()
+def Superprocess(subprocess=None):
+	# create base superprocess module
+	superprocess = base.Superprocess(subprocess)
 
-# apply extensions from submodules
-impl.__all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call', 'check_call',
-	'getstatusoutput', 'getoutput', 'check_output', 'popen', 'run',
-	'CalledProcessError', 'CompletedProcess']
-impl.STDERR = redirect.STDERR
-impl.popen = pipe.popen(impl)
-impl.Popen = type('Popen',
-	(redirect.RedirectMixin, remote.RemoteShellMixin, impl.Popen,), {})
+	# apply extensions from submodules
+	superprocess.__all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR',
+		'call', 'check_call', 'getstatusoutput', 'getoutput', 'check_output',
+		'popen', 'run', 'CalledProcessError', 'CompletedProcess']
+	superprocess.STDERR = redirect.STDERR
+	superprocess.popen = pipe.popen(superprocess)
+	superprocess.Popen = type('Popen',
+		(redirect.RedirectMixin, remote.RemoteShellMixin, superprocess.Popen,), {})
 
-# extract items into superprocess namespace
+	return superprocess
+
+# create default superprocess instance and extract into module namespace
+impl = Superprocess()
 __all__ = impl.__all__
 PIPE = impl.PIPE
 STDOUT = impl.STDOUT
