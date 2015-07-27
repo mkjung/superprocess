@@ -4,7 +4,7 @@ try:
 except ImportError:
 	from urlparse import SplitResult
 
-from superprocess.base import superprocess
+from superprocess.base import Superprocess
 
 try:
 	string_types = basestring  # Python 2
@@ -82,7 +82,7 @@ class RemoteShellMixin(ShellMixin):
 
 class RemoteShellContext(object):
 	def __init__(self, netloc, remote_shell=None, subprocess=None):
-		self.superprocess = superprocess(subprocess)
+		self.superprocess = Superprocess(subprocess)
 		self.connection = connection = connect(netloc, remote_shell)
 
 		class Popen(ShellMixin, self.superprocess.Popen):

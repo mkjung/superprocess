@@ -7,7 +7,7 @@ except ImportError:
 
 from superprocess.utils import reopen
 
-def superprocess(subprocess=None):
+def Superprocess(subprocess=None):
 	if subprocess is None:
 		subprocess = _subprocess
 	assert subprocess.PIPE == PIPE

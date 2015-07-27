@@ -1,7 +1,7 @@
 from superprocess import base, pipe, redirect, remote
 
 # create default superprocess instance
-impl = base.superprocess()
+impl = base.Superprocess()
 
 # apply extensions from submodules
 impl.__all__ = ['Popen', 'PIPE', 'STDOUT', 'STDERR', 'call', 'check_call',
