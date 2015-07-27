@@ -31,7 +31,7 @@ def Superprocess(subprocess=None):
 	superprocess.getstatusoutput = getstatusoutput(superprocess)
 	superprocess.getoutput = getoutput(superprocess)
 
-	superprocess.Popen = type('Popen', (Py2Mixin, subprocess.Popen), {})
+	superprocess.Popen = Popen(superprocess, subprocess.Popen)
 
 	return superprocess
 
@@ -129,3 +129,6 @@ class Py2Mixin(object):
 			self.stderr = reopen(self.stderr, 'rb', bufsize)
 			if universal_newlines:
 				self.stderr = io.TextIOWrapper(self.stderr)
+
+def Popen(subprocess, PopenBase):
+	return type('Popen', (Py2Mixin, PopenBase,), {})
