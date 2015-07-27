@@ -1,6 +1,9 @@
 import io
-import subprocess as _subprocess
 import types
+try:
+	import subprocess32 as _subprocess
+except ImportError:
+	import subprocess as _subprocess
 
 from superprocess.utils import reopen
 
