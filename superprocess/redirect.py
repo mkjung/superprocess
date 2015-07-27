@@ -1,4 +1,4 @@
-from subprocess import STDOUT
+from superprocess.base import STDOUT
 
 STDERR = -4
 
