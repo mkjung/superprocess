@@ -26,7 +26,7 @@ def superprocess(subprocess=None):
 	module.getstatusoutput = getstatusoutput(module)
 	module.getoutput = getoutput(module)
 
-	module.Popen = type('Popen', (CheckMixin, Py2Mixin, subprocess.Popen), {})
+	module.Popen = type('Popen', (Py2Mixin, subprocess.Popen), {})
 
 	return module
 
@@ -121,25 +121,3 @@ class Py2Mixin(object):
 			self.stderr = reopen(self.stderr, 'rb', bufsize)
 			if universal_newlines:
 				self.stderr = io.TextIOWrapper(self.stderr)
-
-# Popen mixin that adds support for checking the return code on poll / wait
-class CheckMixin(object):
-	def __init__(self, *args, **kwargs):
-		self._check = kwargs.pop('check', False)
-		super(CheckMixin, self).__init__(*args, **kwargs)
-
-	def check_returncode(self):
-		if self.returncode:
-			raise _subprocess.CalledProcessError(self.returncode, self.args)
-
-	def poll(self):
-		super(CheckMixin, self).poll()
-		if self._check:
-			self.check_returncode()
-		return self.returncode
-
-	def wait(self, *args, **kwargs):
-		super(CheckMixin, self).wait(*args, **kwargs)
-		if self._check:
-			self.check_returncode()
-		return self.returncode
