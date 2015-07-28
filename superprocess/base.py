@@ -110,6 +110,14 @@ class Py2PopenMixin(object):
 		super(Py2PopenMixin, self).__init__(cmd, *args, **kwargs)
 		self.args = cmd
 
+	def __enter__(self):
+		return self
+
+	def __exit__(self, *exc):
+		for f in (self.stdin, self.stdout, self.stderr):
+			if f: f.close()
+		self.wait()
+
 # Python 2 compatibility mixin to provide streams as io-module files
 class Py2IOMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
