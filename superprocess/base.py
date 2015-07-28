@@ -118,20 +118,20 @@ class Py2IOMixin(object):
 		universal_newlines = kwargs.pop('universal_newlines', False)
 
 		# initialise process
-		super(Py2IOMixin, self).__init__(cmd, *args, bufsize=bufsize,
-			universal_newlines=universal_newlines, **kwargs)
+		super(Py2IOMixin, self).__init__(cmd, *args, bufsize=0,
+			universal_newlines=False, **kwargs)
 
 		# reopen standard streams with io module
-		if self.stdin and not isinstance(self.stdin, io.IOBase):
+		if self.stdin:
 			self.stdin = reopen(self.stdin, 'wb', bufsize)
 			if universal_newlines:
 				self.stdin = io.TextIOWrapper(self.stdin,
 					write_through=True, line_buffering=(bufsize == 1))
-		if self.stdout and not isinstance(self.stdout, io.IOBase):
+		if self.stdout:
 			self.stdout = reopen(self.stdout, 'rb', bufsize)
 			if universal_newlines:
 				self.stdout = io.TextIOWrapper(self.stdout)
-		if self.stderr and not isinstance(self.stderr, io.IOBase):
+		if self.stderr:
 			self.stderr = reopen(self.stderr, 'rb', bufsize)
 			if universal_newlines:
 				self.stderr = io.TextIOWrapper(self.stderr)
