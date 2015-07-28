@@ -10,9 +10,8 @@ def Superprocess(subprocess=None):
 		'popen', 'run', 'CalledProcessError', 'CompletedProcess']
 	superprocess.STDERR = redirect.STDERR
 	superprocess.popen = pipe.popen(superprocess)
-	superprocess.Popen.__bases__ = (
-		redirect.RedirectMixin, remote.RemoteShellMixin,
-	) + superprocess.Popen.__bases__
+	superprocess.Popen = type('Popen',
+		(redirect.RedirectMixin, remote.RemoteShellMixin, superprocess.Popen,), {})
 
 	return superprocess
 
