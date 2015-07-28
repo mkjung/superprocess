@@ -1,4 +1,5 @@
 import io
+import sys
 import types
 try:
 	import subprocess32 as _subprocess
@@ -136,4 +137,9 @@ class Py2IOMixin(object):
 				self.stderr = io.TextIOWrapper(self.stderr)
 
 def Popen(subprocess, PopenBase):
-	return type('Popen', (Py2PopenMixin, Py2IOMixin, PopenBase,), {})
+	if sys.version_info[0] < 3:
+		bases = (Py2PopenMixin, Py2IOMixin, PopenBase,)
+	else:
+		bases = (Py2PopenMixin, PopenBase,)
+
+	return type('Popen', bases, {})
