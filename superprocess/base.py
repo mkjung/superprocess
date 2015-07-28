@@ -108,8 +108,7 @@ def getoutput(subprocess):
 class Py2PopenMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
 		super(Py2PopenMixin, self).__init__(cmd, *args, **kwargs)
-		if not hasattr(self, 'args'):
-			self.args = cmd
+		self.args = cmd
 
 # Python 2 compatibility mixin to provide streams as io-module files
 class Py2IOMixin(object):
