@@ -20,3 +20,6 @@ class RedirectMixin(object):
 		# stdout=STDERR: move output to stderr
 		if redir_stdout:
 			self.stdout, self.stderr = None, self.stdout
+
+def Popen(subprocess, PopenBase):
+	return type('Popen', (RedirectMixin, PopenBase,), {})

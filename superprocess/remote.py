@@ -77,3 +77,6 @@ class RemoteShellMixin(ShellMixin):
 		finally:
 			if self.connection:
 				self.connection.close()
+
+def Popen(subprocess, PopenBase):
+	return type('Popen', (RemoteShellMixin, PopenBase,), {})
