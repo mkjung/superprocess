@@ -144,12 +144,12 @@ class Py2IOMixin(object):
 				self.stderr = io.TextIOWrapper(self.stderr)
 
 def Popen(subprocess, PopenBase):
-	bases = (PopenBase,)
-
+	mixins = ()
 	if sys.version_info[0] < 3:
-		bases = (Py2IOMixin,) + bases
-
+		mixins = (Py2IOMixin,) + mixins
 	if not hasattr(PopenBase, '__enter__'):
-		bases = (Py2PopenMixin,) + bases
+		mixins = (Py2PopenMixin,) + mixins
+	if mixins:
+		return type('Popen', mixins + (PopenBase,), {})
 
-	return type('Popen', bases, {})
+	return PopenBase
