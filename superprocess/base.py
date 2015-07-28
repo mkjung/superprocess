@@ -103,17 +103,22 @@ def getoutput(subprocess):
 		return subprocess.getstatusoutput(cmd)[1]
 	return getoutput
 
-# Popen mixin to improve consistency between Python 2 and 3
-class Py2Mixin(object):
+# Python 2 compatibility mixin to partly emulate Python 3 Popen interface
+class Py2PopenMixin(object):
+	def __init__(self, cmd, *args, **kwargs):
+		super(Py2PopenMixin, self).__init__(cmd, *args, **kwargs)
+		if not hasattr(self, 'args'):
+			self.args = cmd
+
+# Python 2 compatibility mixin to provide streams as io-module files
+class Py2IOMixin(object):
 	def __init__(self, cmd, *args, **kwargs):
 		bufsize = kwargs.pop('bufsize', -1)
 		universal_newlines = kwargs.pop('universal_newlines', False)
 
 		# initialise process
-		super(Py2Mixin, self).__init__(cmd, *args, bufsize=bufsize,
+		super(Py2IOMixin, self).__init__(cmd, *args, bufsize=bufsize,
 			universal_newlines=universal_newlines, **kwargs)
-		if not hasattr(self, 'args'):
-			self.args = cmd
 
 		# reopen standard streams with io module
 		if self.stdin and not isinstance(self.stdin, io.IOBase):
@@ -131,4 +136,4 @@ class Py2Mixin(object):
 				self.stderr = io.TextIOWrapper(self.stderr)
 
 def Popen(subprocess, PopenBase):
-	return type('Popen', (Py2Mixin, PopenBase,), {})
+	return type('Popen', (Py2PopenMixin, Py2IOMixin, PopenBase,), {})
