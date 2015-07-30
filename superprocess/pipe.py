@@ -1,4 +1,4 @@
-from superprocess.utils import WeaklyBoundMethod
+from superprocess.utils import unbind, WeaklyBoundMethod
 
 # Open a pipe to / from a command - similar to os.popen()
 def popen(subprocess):
@@ -18,8 +18,9 @@ def popen(subprocess):
 		p.stdin, p.stdout = None, None
 
 		# override close method to return the exit status
+		_close = unbind(f.close)
 		def close(self):
-			type(self).close(self)
+			_close(self)
 			stdout, stderr = p.communicate()
 			result = subprocess.CompletedProcess(p.args, p.returncode, stdout, stderr)
 			if check:
