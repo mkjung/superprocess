@@ -13,7 +13,8 @@ def popen(subprocess):
 		p = subprocess.Popen(cmd, bufsize=buffering, stdin=stdin, stdout=stdout,
 			universal_newlines=(mode[-1] != 'b'), **kwargs)
 
-		# detach stream so that it can be managed independently
+		# detach stream so that it can be managed independently,
+		# and to break circular reference p -> f -> close -> p
 		f = p.stdin or p.stdout
 		p.stdin, p.stdout = None, None
 
