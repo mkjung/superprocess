@@ -67,7 +67,7 @@ def reopen(file, mode='r', buffering=-1,
 	@wraps(unbind(iofile.close))
 	def close(self):
 		try:
-			return close.__wrapped__(self)
+			close.__wrapped__(self)
 		finally:
 			file.close()
 

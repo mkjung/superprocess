@@ -18,14 +18,13 @@ def popen(subprocess):
 		f = p.stdin or p.stdout
 		p.stdin, p.stdout = None, None
 
-		# override close method to return the exit status
+		# override close to check the return code
 		@wraps(unbind(f.close))
 		def close(self):
 			close.__wrapped__(self)
 			stdout, stderr = p.communicate()
 			result = subprocess.CompletedProcess(p.args, p.returncode, stdout, stderr)
 			result.check_returncode()
-			return result.returncode
 
 		# weakly bind the new close method to avoid a circular reference
 		f.close = WeaklyBoundMethod(close, f)
