@@ -1,6 +1,26 @@
+import functools
 import io
+import sys
 import types
 import weakref
+
+# backport changes to functools
+if sys.version_info >= (3,4):
+	from functools import update_wrapper, wraps
+else:
+	def update_wrapper(wrapper, wrapped,
+			assigned=functools.WRAPPER_ASSIGNMENTS,
+			updated=functools.WRAPPER_UPDATES):
+		assigned = tuple(attr for attr in assigned if hasattr(wrapped, attr))
+		functools.update_wrapper(wrapper, wrapped, assigned, updated)
+		wrapper.__wrapped__ = wrapped
+		return wrapper
+
+	def wraps(wrapped,
+			assigned=functools.WRAPPER_ASSIGNMENTS,
+			updated=functools.WRAPPER_UPDATES):
+		return functools.partial(update_wrapper, wrapped=wrapped,
+			assigned=assigned, updated=updated)
 
 # Get the original function from a bound method
 def unbind(f):
@@ -44,10 +64,10 @@ def reopen(file, mode='r', buffering=-1,
 		encoding, errors, newline, closefd=False)
 
 	# override close method to close original file too
-	_close = unbind(iofile.close)
+	@wraps(unbind(iofile.close))
 	def close(self):
 		try:
-			return _close(self)
+			return close.__wrapped__(self)
 		finally:
 			file.close()
 
