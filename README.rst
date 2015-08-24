@@ -15,8 +15,8 @@ Usage
 -----
 Run a remote command::
 
-	>>> superprocess.check_output('echo $SSH_CONNECTION', netloc='localhost', shell=True)
-	b'::1 56924 ::1 22\n'
+	>>> superprocess.check_output('echo $SSH_CONNECTION', netloc='127.0.0.1', shell=True)
+	b'127.0.0.1 56924 127.0.0.1 22\n'
 
 Open a pipe to a command::
 
