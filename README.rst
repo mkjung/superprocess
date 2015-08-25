@@ -1,7 +1,8 @@
 superprocess
 ============
-superprocess provides a subprocess-like API for starting both local and remote
-processes.
+Superprocess facilitates extending the built-in subprocess module.
+You can extend superprocess to add custom behaviour or use the bundled
+extensions, most notably support for running remote processes.
 
 Installation
 ------------
