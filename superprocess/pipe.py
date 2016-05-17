@@ -1,4 +1,4 @@
-from superprocess.utils import unbind, WeaklyBoundMethod
+from superprocess.utils import weakmethodproxy
 
 # Open a pipe to / from a command - similar to os.popen()
 def popen(subprocess):
@@ -22,7 +22,7 @@ def popen(subprocess):
 		# to create a circular reference f -> close -> _close -> f
 		_close = f.close
 		if getattr(_close, '__self__', None) is f:
-			_close = WeaklyBoundMethod(unbind(_close), f)
+			_close = weakmethodproxy(_close)
 
 		# override close method to check the return code
 		def close():

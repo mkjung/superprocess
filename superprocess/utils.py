@@ -2,18 +2,19 @@ import io
 import types
 import weakref
 
-# Get the original function from a bound method
-def unbind(f):
-	# unbind Python bound method or classmethod
-	if hasattr(f, '__func__'):
-		return f.__func__
+# Create a weakly-bound proxy for a bound method
+def weakmethodproxy(method):
+	try:
+		instance = method.__self__
 
-	# unbind built-in bound method
-	if isinstance(f, types.BuiltinMethodType):
-		return getattr(type(f.__self__), f.__name__)
+		if isinstance(method, types.BuiltinMethodType):
+			function = getattr(type(instance), method.__name__)
+		else:
+			function = method.__func__
+	except AttributeError:
+		raise TypeError('argument should be a bound method, not %s', type(method))
 
-	# not recognised as bound method
-	raise TypeError('argument should be a bound method, not %s', type(f))
+	return WeaklyBoundMethod(function, instance)
 
 # Alternative to types.MethodType that weakly binds a method
 class WeaklyBoundMethod(object):
@@ -47,7 +48,7 @@ def reopen(file, mode='r', buffering=-1,
 	# to create a circular reference f -> close -> _close -> f
 	_close = iofile.close
 	if getattr(_close, '__self__', None) is iofile:
-		_close = WeaklyBoundMethod(unbind(_close), iofile)
+		_close = weakmethodproxy(_close)
 
 	# override close method to close the original file too
 	def close():
