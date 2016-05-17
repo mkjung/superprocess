@@ -14,20 +14,23 @@ def popen(subprocess):
 			universal_newlines=(mode[-1] != 'b'), **kwargs)
 
 		# detach stream so that it can be managed independently,
-		# and to break circular reference p -> f -> close -> p
+		# and to break circular reference f -> close -> p -> f
 		f = p.stdin or p.stdout
 		p.stdin, p.stdout = None, None
 
-		# override close to check the return code
-		_close = unbind(f.close)
-		def close(self):
-			_close(self)
+		# store reference to underlying close method, taking care not
+		# to create a circular reference f -> close -> _close -> f
+		_close = f.close
+		if getattr(_close, '__self__', None) is f:
+			_close = WeaklyBoundMethod(unbind(_close), f)
+
+		# override close method to check the return code
+		def close():
+			_close()
 			stdout, stderr = p.communicate()
 			result = subprocess.CompletedProcess(p.args, p.returncode, stdout, stderr)
 			result.check_returncode()
-
-		# weakly bind the new close method to avoid a circular reference
-		f.close = WeaklyBoundMethod(close, f)
+		f.close = close
 
 		return f
 	return popen

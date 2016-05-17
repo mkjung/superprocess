@@ -43,15 +43,18 @@ def reopen(file, mode='r', buffering=-1,
 	iofile = io.open(file.fileno(), mode, buffering,
 		encoding, errors, newline, closefd=False)
 
-	# override close method to close original file too
-	_close = unbind(iofile.close)
-	def close(self):
+	# store reference to underlying close method, taking care not
+	# to create a circular reference f -> close -> _close -> f
+	_close = iofile.close
+	if getattr(_close, '__self__', None) is iofile:
+		_close = WeaklyBoundMethod(unbind(_close), iofile)
+
+	# override close method to close the original file too
+	def close():
 		try:
-			_close(self)
+			_close()
 		finally:
 			file.close()
-
-	# weakly bind the new close method to avoid a circular reference
-	iofile.close = WeaklyBoundMethod(close, iofile)
+	iofile.close = close
 
 	return iofile
