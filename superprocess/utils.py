@@ -28,6 +28,16 @@ class WeaklyBoundMethod(object):
 	def __self__(self):
 		return self.__ref__()
 
+	@property
+	def __doc__(self):
+		return self.__func__.__doc__
+
+	def __getattr__(self, name):
+		return getattr(self.__func__, name)
+
+	def __get__(self, instance, owner=None):
+		return self
+
 	def __call__(self, *args, **kwargs):
 		__func__ = self.__func__
 		__self__ = self.__self__
