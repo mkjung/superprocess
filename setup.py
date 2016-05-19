@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='superprocess',
     version='0.3.0.dev',
-    description='subprocess-like API for starting local and remote processes',
+    description='An extensible replacement for the subprocess module, with support for running remote processes.',
     long_description=long_description,
 
     url='https://bitbucket.org/stevedrake/superprocess',
